@@ -1,0 +1,221 @@
+﻿
+'********************************************************************************
+'	Web Functions
+'       -------------------------
+'
+'   Available Functions:
+'	* VerifyProperty - Verifies the value of a specified property (for all Web test objects)
+'	* OutputProperty - Returns the value of the specified property (for all Web test objects)
+'	* VerifyEnable - Verifies whether a specified object is enabled (for all Web test objects)
+'	* VerifyValue - Verifies the value of a specified object (for WebCheckBox, WebEdit, WebFile, WebList, WebRadioGroup)
+'	* GetValue - Returns the object value (for WebCheckBox, WebEdit, WebFile, WebList, WebRadioGroup)
+'
+'   Version: QTP9.0 November 2005
+'   ** In order to use the functions in this file, you must also load the "Common.txt" function library file.
+'
+'   ** Do not modify this file. It may be automatically updated by a later version, and then you will lose your changes.
+'********************************************************************************
+
+Option Explicit
+
+' Function Sync
+' -----------------------
+' Supply default method that returns immediately, to be used in the Frame test object.
+' Returns - True.
+
+'@Description Waits for the  test  object to synchronize
+'@Documentation Wait for the <Test object name> <Test object type> to synchronize before continuing the run.
+Public Function Sync
+	Sync = True
+End Function
+
+
+' Function VerifyWebEnabled
+' -------------------------
+' Verify whether a specified object is enabled
+' Returns - True - if the test object is enabled
+' 
+'@Description Checks whether the specified test object is enabled
+'@Documentation Check whether the <Test object name> <test object type> is enabled.
+Public Function VerifyWebEnabled(obj)
+	Dim disable_property
+	' Get the enabled property from the test object
+	disable_property = obj.GetROProperty("disabled")
+	If disable_property = 0 Then ' The value is True (anything but 0)
+		Reporter.ReportEvent micPass, "VerifyEnabled Succeeded", "The test object is enabled"
+		VerifyWebEnabled = True
+	Else
+		Reporter.ReportEvent micFail, "VerifyEnabled Failed", "The test object is NOT enabled"
+		VerifyWebEnabled = False
+	End If
+End Function
+
+' Function LaunchBrowser
+' -----------------------
+' Launch browsers manually with different parameters.
+' Parameters:
+'       Browser - The name of the browser to launch
+'       device_model - The model of the specified device containing the browser
+'       device_manufacturer - The manufacturer of the specified device
+'       device_ostype - The operation system running on the specified device
+'       device_osversion - The operating system version running on the specified device
+
+'@Description Launch browser with specified parameters
+'@Documentation Launch desktop or mobile browser with specified parameters
+Public Function LaunchBrowser(Browser, device_model, device_manufacturer, device_ostype, device_osversion)
+    WebUtil.LaunchBrowser Browser, device_model, device_manufacturer, device_ostype, device_osversion
+End Function
+
+' *********************************************************************************************
+' *** 			Register the Functions
+' *********************************************************************************************
+
+' Register the "VerifyProperty" Function
+RegisterUserFunc "Browser" , "VerifyProperty" , "VerifyProperty"
+RegisterUserFunc "Frame" , "VerifyProperty" , "VerifyProperty"
+RegisterUserFunc "Image" , "VerifyProperty" , "VerifyProperty"
+RegisterUserFunc "Link" , "VerifyProperty" , "VerifyProperty"
+RegisterUserFunc "ViewLink" , "VerifyProperty" , "VerifyProperty"
+RegisterUserFunc "Page" , "VerifyProperty" , "VerifyProperty"
+RegisterUserFunc "WebArea" , "VerifyProperty" , "VerifyProperty"
+RegisterUserFunc "WebButton" , "VerifyProperty" , "VerifyProperty"
+RegisterUserFunc "WebCheckBox" , "VerifyProperty" , "VerifyProperty"
+RegisterUserFunc "WebEdit" , "VerifyProperty" , "VerifyProperty"
+RegisterUserFunc "WebElement" , "VerifyProperty" , "VerifyProperty"
+RegisterUserFunc "WebFile" , "VerifyProperty" , "VerifyProperty"
+RegisterUserFunc "WebList" , "VerifyProperty" , "VerifyProperty"
+RegisterUserFunc "WebRadioGroup" , "VerifyProperty" , "VerifyProperty"
+RegisterUserFunc "WebTable" , "VerifyProperty" , "VerifyProperty"
+
+' Register the "OutputProperty" Function
+RegisterUserFunc "Browser" , "OutputProperty" , "OutputProperty"
+RegisterUserFunc "Frame" , "OutputProperty" , "OutputProperty"
+RegisterUserFunc "Image" , "OutputProperty" , "OutputProperty"
+RegisterUserFunc "Link" , "OutputProperty" , "OutputProperty"
+RegisterUserFunc "ViewLink" , "OutputProperty" , "OutputProperty"
+RegisterUserFunc "Page" , "OutputProperty" , "OutputProperty"
+RegisterUserFunc "WebArea" , "OutputProperty" , "OutputProperty"
+RegisterUserFunc "WebButton" , "OutputProperty" , "OutputProperty"
+RegisterUserFunc "WebCheckBox" , "OutputProperty" , "OutputProperty"
+RegisterUserFunc "WebEdit" , "OutputProperty" , "OutputProperty"
+RegisterUserFunc "WebElement" , "OutputProperty" , "OutputProperty"
+RegisterUserFunc "WebFile" , "OutputProperty" , "OutputProperty"
+RegisterUserFunc "WebList" , "OutputProperty" , "OutputProperty"
+RegisterUserFunc "WebRadioGroup" , "OutputProperty" , "OutputProperty"
+RegisterUserFunc "WebTable" , "OutputProperty" , "OutputProperty"
+
+' Register the "VerifyValue" Function
+RegisterUserFunc "WebCheckBox" , "VerifyValue" , "VerifyChecked"
+RegisterUserFunc "WebEdit" , "VerifyValue" , "VerifyValue"
+RegisterUserFunc "WebFile" , "VerifyValue" , "VerifyValue"
+RegisterUserFunc "WebList" , "VerifyValue" , "VerifyValue"
+RegisterUserFunc "WebRadioGroup" , "VerifyValue" , "VerifyValue"
+
+' Register the "GetValue" Function
+RegisterUserFunc "Link" , "GetValue" , "GetTextProperty"
+RegisterUserFunc "WebCheckBox" , "GetValue" , "GetCheckedProperty"
+RegisterUserFunc "WebEdit" , "GetValue" , "GetValueProperty"
+RegisterUserFunc "WebFile" , "GetValue" , "GetValueProperty"
+RegisterUserFunc "WebList" , "GetValue" , "GetValueProperty"
+RegisterUserFunc "WebRadioGroup" , "GetValue" , "GetValueProperty"
+
+' Register the "VerifyEnable" Function
+RegisterUserFunc "WebButton" , "VerifyEnable" , "VerifyWebEnabled"
+RegisterUserFunc "WebCheckBox" , "VerifyEnable" , "VerifyWebEnabled"
+RegisterUserFunc "WebEdit" , "VerifyEnable" , "VerifyWebEnabled"
+RegisterUserFunc "WebFile" , "VerifyEnable" , "VerifyWebEnabled"
+RegisterUserFunc "WebList" , "VerifyEnable" , "VerifyWebEnabled"
+RegisterUserFunc "WebRadioGroup" , "VerifyEnable" , "VerifyWebEnabled"
+
+' Register the Sync Function
+RegisterUserFunc "Frame", "Sync", "Sync", True
+
+'***********************************************
+'Created By 	:	Roger Chong
+'Purpose	   	:	To identify the browser and page property
+'Function Name	: 	BROWSERPROPERTIES(BrowserName)
+'****************************************************************
+Public Function BROWSERPROPERTIES(BrowserName)
+	Dim oDescription
+	Dim BrowserObjectList
+	Dim oLatestBrowserIndex
+	
+	Set oDescription=Description.Create
+	oDescription("micclass").value="Browser"
+	Set BrowserObjectList=Desktop.ChildObjects(oDescription)
+	oLatestBrowserIndex=BrowserObjectList.count-1
+		Do
+		If oLatestBrowserIndex >= 0 Then
+			BrowserName = Browser("creationtime:="&oLatestBrowserIndex).Getroproperty("name")
+
+		End If
+		
+		oLatestBrowserIndex = oLatestBrowserIndex-1
+	Loop While BrowserName = ""
+	
+	
+	If BrowserName = "Auckland Council | Homepage" Then
+		BrowserName = "Auckland Council \| Homepage"
+'	ElseIf BrowserName = "Checkout | Auckland Council" Then
+'		BrowserName = "Checkout \| Auckland Council"
+'	ElseIf BrowserName = "Order Confirmation | Auckland Council" Then
+'		BrowserName = "Order Confirmation \| Auckland Council"
+'	ElseIf BrowserName = "Your Shopping Cart | Auckland Council" Then
+'		BrowserName = "Your Shopping Cart \| Auckland Council"
+	End If
+	
+End Function
+
+
+'***********************************************
+'Created By 	:	Roger Chong
+'Purpose	   	:	To identify the browser and page property
+'Function Name	: 	PAGEPROPERTIES(PageTitle)
+'****************************************************************
+
+Public Function PAGEPROPERTIES(PageTitle,SAPPortal)
+	
+	Dim oDescription
+	Dim BrowserObjectList
+	Dim oLatestBrowserIndex
+	
+	Set oDescription=Description.Create
+	oDescription("micclass").value="Browser"
+	Set BrowserObjectList=Desktop.ChildObjects(oDescription)
+	oLatestBrowserIndex=BrowserObjectList.count-1
+	
+		Do
+		If oLatestBrowserIndex >= 0 Then
+			If Browser("creationtime:="&oLatestBrowserIndex).page("creationtime:="&oLatestBrowserIndex).exist(5) Then
+				PageTitle = Browser("creationtime:="&oLatestBrowserIndex).page("creationtime:="&oLatestBrowserIndex).Getroproperty("title")
+		
+			ElseIf Browser("creationtime:="&oLatestBrowserIndex).SAPPortal("creationtime:="&oLatestBrowserIndex).exist(5) Then
+				SAPPortal = Browser("creationtime:="&oLatestBrowserIndex).SAPPortal("creationtime:="&oLatestBrowserIndex).Getroproperty("title")
+			End If
+			
+		End If
+		
+		oLatestBrowserIndex = oLatestBrowserIndex-1
+	Loop While PageTitle = "" and SAPPortal = ""
+	
+If PageTitle = "Auckland Council | Homepage" Then
+	PageTitle = "Auckland Council \| Homepage"
+'	ElseIf PageTitle = "Checkout | Auckland Council" Then
+'		PageTitle = "Checkout \| Auckland Council"
+'	ElseIf PageTitle = "Order Confirmation | Auckland Council" Then
+'		PageTitle = "Order Confirmation \| Auckland Council"
+'	ElseIf PageTitle = "Your Shopping Cart | Auckland Council" Then
+'		PageTitle = "Your Shopping Cart \| Auckland Council"
+	End If
+	
+End Function
+
+Function TodaysDate(tDate)
+
+	Dim TodaysDates
+
+	TodaysDates = right("0" & day(Date), 2) & "." & right("0" & month(Date), 2) & "." & year(Date)
+	tDate= TodaysDates
+	
+	Reporter.ReportEvent micDone, "TODAY'S DATE", "TODAY'S DATE = "&tDate
+End Function
